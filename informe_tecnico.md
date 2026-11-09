@@ -37,15 +37,15 @@ Además, se usa aprendizaje no supervisado para descubrir **perfiles sonoros** d
 
 ## 3. KPIs
 
-| KPI | Definición | Valor obtenido |
-|---|---|---|
-| Tasa global de hits | % del catálogo con `popularity >= 70` | **4,82 %** |
-| Popularidad promedio por género | Géneros con mayor atractivo comercial | Mayor *hit ratio*: pop 31,9 %, dance 25,3 %, electro 24,1 %, k-pop 22,5 %, house 22,1 % |
-| Índice de afinidad sonora | Correlación entre atributos de audio y popularidad | Débil: todas las correlaciones con `popularity` son menores a 0,10 |
-| Duración óptima | Duración con mayor popularidad promedio | **3 a 5 minutos** (cerca de 34,8 puntos) |
-| Recall de Hit | Hits reales que el modelo detecta | 0,14 a 0,67 según modelo |
-| Precision de Hit | Alertas de hit que realmente lo son | 0,15 a 0,49 según modelo |
-| RMSE y MAE de popularidad | Error promedio en puntos de popularidad | Mejor modelo: RMSE 16,5 y MAE 11,3 (línea base: 22,2 y 18,8) |
+| KPI | Definición | Meta | Valor obtenido | ¿Cumple con la meta? |
+|---|---|---|---|---|
+| Tasa global de hits | % del catálogo con `popularity >= 70` |META| **4,82 %** | - |
+| Popularidad promedio por género | Géneros con mayor atractivo comercial |META| Mayor *hit ratio*: pop 31,9 %, dance 25,3 %, electro 24,1 %, k-pop 22,5 %, house 22,1 % | - |
+| Índice de afinidad sonora | Correlación entre atributos de audio y popularidad |META| Débil: todas las correlaciones con `popularity` son menores a 0,10 | - |
+| Duración óptima | Duración con mayor popularidad promedio |META| **3 a 5 minutos** (cerca de 34,8 puntos) | - |
+| Recall de Hit | Hits reales que el modelo detecta |META| 0,14 a 0,67 según modelo | - |
+| Precision de Hit | Alertas de hit que realmente lo son |META| 0,15 a 0,49 según modelo | - |
+| RMSE y MAE de popularidad | Error promedio en puntos de popularidad |META| Mejor modelo: RMSE 16,5 y MAE 11,3 (línea base: 22,2 y 18,8) | - |
 
 ## 4. Fuentes de datos
 
