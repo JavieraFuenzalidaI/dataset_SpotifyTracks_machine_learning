@@ -1,44 +1,81 @@
-# Inteligencia musical y predicción de popularidad (Spotify Tracks)
+# Inteligencia musical y predicción de popularidad de canciones (Spotify Tracks)
 
-Evaluación Parcial N°2, Machine Learning (MLY1101). Catalina Villegas y Javiera Fuenzalida, sección 002D, docente Ignacio Meza.
+Proyecto de **Machine Learning (MLY1101, Duoc UC)**, Evaluación Parcial N°3. Caso C: predecir si una canción será *hit* (`popularity >= 70`) a partir de sus atributos de audio y metadatos, comparando un árbol de decisión simple contra dos ensambles (Random Forest y LightGBM), y descubriendo perfiles sonoros con K-Means.
 
-Proyecto de Machine Learning sobre 113.549 canciones de Spotify (114 géneros): predice si una canción será **hit** (`popularity >= 70`), cuántos **puntos de popularidad** tendrá y descubre **perfiles sonoros** con PCA y K-Means. Metodología CRISP-DM.
+**Integrantes:** Catalina Villegas y Javiera Fuenzalida · **Sección:** 002D · **Docente:** Ignacio Meza
 
-## instalaciones necesarias
+## Resultado principal
 
-pandas, numpy, matplotlib,seaborn, category_encoders, sklearn, imbalanced-learn,lightgbm, xgboost
+| Modelo | PR-AUC en validación cruzada (5 pliegues) | Recall de Hit en test | Precision de Hit en test |
+| :---- | :---- | :---- | :---- |
+| Árbol de decisión (optimizado) | 0,140 | 0,822 | 0,143 |
+| Random Forest (optimizado) | 0,318 | 0,770 | 0,189 |
+| **LightGBM (optimizado)** | **0,367** | **0,883** | **0,225** |
+
+* Modelo seleccionado: **LightGBM optimizado** (PR-AUC en test 0,392; lift de 3,96 veces el azar).  
+* El modelo funciona como **filtro de candidatos** para revisión humana: detecta el 88 % de los hits, pero solo 1 de cada 4 alertas es un hit real.  
+* K-Means encuentra 7 perfiles sonoros, con tasas de hits entre 0 % y 9 %.
+
+El detalle completo está en [`informe_tecnico.md`](http://informe_tecnico.md).
 
 ## Estructura del proyecto
 
 ```
+.
 ├── data/
 │   ├── Spotify_Tracks_Dataset.csv          # datos originales
-│   └── Spotify_Tracks_Dataset_Clean.csv    # generado por EDA.ipynb
+│   └── Spotify_Tracks_Dataset_Clean.csv    # datos limpios (salida del EDA)
 ├── notebooks/
-│   ├── EDA.ipynb                           # calidad de datos, KPIs y gráficos
-│   └── EvParcial2_MachineLearning_VillegasFuenzalida.ipynb   # modelado
+│   ├── EDA.ipynb                        # limpieza y análisis exploratorio
+│   └── EvParcial3_MachineLearning...       # modelos, optimización, validación y selección
 ├── images/                                 # gráficos generados por los notebooks
-├── informe_tecnico.md                      # informe completo
+├── informe_tecnico.md
 └── README.md
 ```
 
-La carpeta `models/` no se usa: los modelos se entrenan al ejecutar el notebook (tardan pocos minutos).
+Cómo reproducir
 
-## Cómo ejecutar
+### Opción A: Google Colab
 
-**Google Colab**
+1. Sube `Spotify_Tracks_Dataset.csv` a la sesión (ícono de carpeta) y ejecuta `EDA.ipynb`. Genera `Spotify_Tracks_Dataset_Clean.csv`.  
+2. Abre `EvParcial3_MachineLearning_VillegasFuenzalida.ipynb`, mantén el CSV limpio en la sesión y ejecuta todas las celdas (**Entorno de ejecución \> Ejecutar todo**).
 
-1. Sube al panel de archivos `Spotify_Tracks_Dataset.csv` y abre `EDA.ipynb`. Ejecuta todo: genera `Spotify_Tracks_Dataset_Clean.csv` y los gráficos del EDA.
-2. Abre el notebook de modelado, sube `Spotify_Tracks_Dataset_Clean.csv` a la sesión y ejecuta todo. La primera celda instala `category_encoders` e `imbalanced-learn`.
+### Opción B: local
 
-**Local:** respeta la estructura anterior; los notebooks detectan `../data` y `../images` solos.
+1. Clona el repositorio y crea un entorno virtual:
 
-## Resultados principales
+```sh
+python -m venv .venv
+source .venv/bin/activate        # en Windows: .venv\Scripts\activate
+pip install pandas numpy matplotlib seaborn scikit-learn lightgbm jupyter
+```
 
-| Tarea | Mejor modelo | Resultado (test) |
-|---|---|---|
-| Clasificar hit | LightGBM con pesos de clase | ROC-AUC 0,842, PR-AUC 0,312, recall 0,60, precision 0,20 |
-| Predecir popularidad | HistGradientBoosting | RMSE 16,5 (línea base 22,2), R² 0,45 |
-| Perfiles sonoros | PCA (5 componentes, 81,5 %) + K-Means k = 4 | 4 perfiles; ningún perfil supera 6 % de hits |
+2. Abre Jupyter y ejecuta primero `notebooks/EDA.ipynb` y luego `notebooks/EvParcial3_MachineLearning_VillegasFuenzalida.ipynb`. Los notebooks buscan los datos en `../data` automáticamente.
 
-Decisiones clave: partición **agrupada por `track_id`** y **estratificada por género** (test con los 114 géneros), codificadores ajustados solo con train y balanceo (SMOTENC) **solo en train**. Detalle completo, registro de decisiones y limitaciones en [`informe_tecnico.md`](informe_tecnico.md).
+**Tiempo de ejecución aproximado de `EvParcial3_MachineLearning_VillegasFuenzalida.ipynb` en Colab:** la optimización de hiperparámetros demoró 16 s (árbol), 222 s (Random Forest) y 34 s (LightGBM), más la validación cruzada de 5 pliegues de los seis modelos. En total, unos 8 a 10 minutos.
+
+## Contenido de `EvParcial3_MachineLearning_VillegasFuenzalida.ipynb`
+
+1. Preparación de los datos: una fila por canción, variable objetivo, codificación y partición 80/20.  
+2. Optimización de hiperparámetros: Grid Search (árbol) y Random Search (Random Forest y LightGBM).  
+3. Ensambles y validación cruzada de 5 pliegues: media, desviación estándar y brecha entre train y validación.  
+4. Selección del modelo con una regla definida antes de usar el test, más equidad por subgrupos e importancia de variables.  
+5. Tabla de cumplimiento de los KPIs.  
+6. K-Means para descubrir perfiles sonoros.
+
+## Metodología
+
+El proyecto sigue el estándar **CRISP-DM**: comprensión del negocio, comprensión de los datos, preparación, modelado, evaluación y despliegue (documentación reproducible).
+
+## Datos
+
+* **Fuente:** dataset *Spotify Tracks* (114.000 filas y 114 géneros en el archivo original).  
+* **Datos de trabajo:** 37.497 canciones únicas de 49 géneros (los 25 más populares y los 25 menos populares), con 5,68 % de hits.  
+* Contiene metadatos públicos de canciones, sin datos personales de oyentes.
+
+## Limitaciones
+
+* La precision es baja (0,225): se requiere revisión humana de las alertas.  
+* La selección de géneros usa la popularidad y no refleja el catálogo real.  
+* La popularidad refleja lo que Spotify ya promovió (sesgo de retroalimentación).  
+* La estabilidad del modelo entre pliegues (0,024) queda levemente sobre la meta de 0,02.
